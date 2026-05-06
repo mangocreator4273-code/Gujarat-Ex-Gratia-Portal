@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gujarat Unified Ex-Gratia System</title>
+    <meta name="description" content="Official Government of Gujarat unified portal for Ex-Gratia relief and dashboard.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* India / Gujarat Theme */
+            --saffron: #FF9933;
+            --saffron-dark: #E68A00;
+            --green: #138808;
+            --navy: #1A365D;
+            --navy-light: #2A4A7F;
+            --bg-light: #F1F5F9;
+            --white: #FFFFFF;
+            --text-dark: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --danger: #EF4444;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Emergency Banner */
+        .alert-banner {
+            background: var(--danger);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 100;
+        }
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        /* Navbar */
+        nav {
+            background: var(--navy);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            box-shadow: var(--shadow-md);
+            border-bottom: 4px solid var(--saffron);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .brand img {
+            height: 50px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--saffron);
+        }
+        .btn-primary {
+            background: var(--saffron);
+            color: white !important;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(255, 153, 51, 0.3);
+        }
+        .btn-primary:hover {
+            background: var(--saffron-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none;
+            padding: 3rem 5%;
+            animation: fadeIn 0.4s ease-out;
+            flex: 1;
+        }
+        .screen.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero / Stats Section */
+        .hero {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            color: white;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,153,51,0.2) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--saffron);
+            margin: 0.5rem 0;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        /* Map Section */
+        .map-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        #map {
+            height: 500px;
+            border-radius: var(--radius-md);
+            z-index: 1;
+        }
+
+        /* Forms & Cards */
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card-title {
+            font-size: 1.8rem;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .card-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .form-row > .form-group {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--saffron);
+            box-shadow: 0 0 0 3px rgba(255, 153, 51, 0.1);
+        }
+        .btn {
+            width: 100%;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-success { background: var(--green); color: white; }
+        .btn-success:hover { background: #0f6d06; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(19, 136, 8, 0.3); }
+
+        /* Admin Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: var(--bg-light);
+            font-weight: 600;
+            color: var(--navy);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-pending { background: #FEF3C7; color: #D97706; }
+        .status-approved { background: #DCFCE7; color: #166534; }
+        .status-rejected { background: #FEE2E2; color: #991B1B; }
+
+        /* Footer */
+        footer {
+            background: var(--navy);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: auto;
+            border-top: 4px solid var(--saffron);
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            nav { flex-direction: column; gap: 1rem; padding: 1rem; }
+            .nav-links { flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+            .form-row { flex-direction: column; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Emergency Banner -->
+    <div class="alert-banner" id="weather-banner" style="display: none;">
+        <span class="live-dot"></span>
+        <span id="banner-text">Weather Update</span>
+        <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;color:white;cursor:pointer;margin-left:auto;"><i data-lucide="x"></i></button>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="brand" onclick="navigate('dashboard')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Seal_of_Gujarat.svg" alt="Gujarat Logo">
+            <span>Gujarat Relief Portal</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="navigate('dashboard')" id="nav-dashboard">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </button>
+            <button class="nav-btn" onclick="navigate('apply')" id="nav-apply">
+                <i data-lucide="file-edit"></i> Apply Ex-Gratia
+            </button>
+            <button class="nav-btn" onclick="navigate('track')" id="nav-track">
+                <i data-lucide="search"></i> Track Status
+            </button>
+            <button class="nav-btn btn-primary" onclick="navigate('admin')" id="nav-admin">
+                <i data-lucide="shield"></i> Official Login
+            </button>
+        </div>
+    </nav>
+
+    <!-- SCREEN 1: DASHBOARD -->
+    <div id="screen-dashboard" class="screen active">
+        <div class="hero">
+            <h1>Unified Ex-Gratia & Relief Management</h1>
+            <p>Transparent, fast, and secure financial assistance distribution system for the citizens of Gujarat during natural calamities and emergencies.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Applications</div>
+                    <div class="stat-value" id="stat-total">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Disbursed Successfully</div>
+                    <div class="stat-value" style="color: #4ade80;" id="stat-approved">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Amount Disbursed</div>
+                    <div class="stat-value" id="stat-amount">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pending Verification</div>
+                    <div class="stat-value" style="color: #facc15;" id="stat-pending">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div class="map-header">
+                <h2><i data-lucide="map-pin" style="display:inline; vertical-align:middle;"></i> Geographic Distribution of Claims</h2>
+                <button class="btn btn-primary" style="width:auto; padding: 0.5rem 1rem;" onclick="navigate('apply')">Apply Now</button>
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: APPLY FOR EX-GRATIA -->
+    <div id="screen-apply" class="screen">
+        <div class="card">
+            <h2 class="card-title">Apply for Ex-Gratia Relief</h2>
+            <p class="card-subtitle">Please fill out the form carefully. Authentic details ensure faster processing.</p>
+            
+            <form id="applicationForm" onsubmit="handleApplicationSubmit(event)">
+                <h3 style="margin-bottom: 1rem; color: var(--navy); border-bottom: 2px solid var(--bg-light); padding-bottom: 0.5rem;">Applicant Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Legal Name</label>
+                        <input type="text" id="appName" required placeholder="e.g. Ramesh Patel">
+                    </div>
+                    <div class="form-group">
+                        <label>Aadhar Number</label>
+                        <input type="text" id="appAadhar" required pattern="[0-9]{12}" placeholder="12-digit Aadhar">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="tel" id="appMobile" required pattern="[0-9]{10}" placeholder="10-digit mobile number">
+                    </div>
+                    <div class="form-group">
+                        <label>District</label>
+                        <select id="appDistrict" required>
+                            <option value="">Select District</option>
+                            <option value="Ahmedabad">Ahmedabad</option>
+                            <option value="Surat">Surat</option>
+                            <option value="Vadodara">Vadodara</option>
+                            <option value="Rajkot">Rajkot</option>
+                            <option value="Kutch">Kutch</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 1rem; margin-top: 1rem; color: var(--navy); border-bottom: 2px solid var(--bg-light); padding-bottom: 0.5rem;">Incident & Bank Details</h3>
+                <div class="form-group">
+                    <label>Nature of Calamity / Incident</label>
+                    <select id="appIncident" required>
+                        <option value="">Select Incident Type</option>
+                        <option value="Flood">Flood Damage</option>
+                        <option value="Cyclone">Cyclone</option>
+                        <option value="Fire">Fire Accident</option>
+                        <option value="Other">Other Emergency</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Bank Account Number</label>
+                        <input type="text" id="appAccount" required placeholder="Account Number">
+                    </div>
+                    <div class="form-group">
+                        <label>IFSC Code</label>
+                        <input type="text" id="appIFSC" required placeholder="e.g. SBIN0001234">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="margin-top: 1rem;">
+                    <i data-lucide="send"></i> Submit Application Securely
+                </button>
+            </form>
+            
+            <div id="applySuccess" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; background: #DCFCE7; border-radius: 12px; color: #166534;">
+                <i data-lucide="check-circle" style="width: 64px; height: 64px; margin-bottom: 1rem;"></i>
+                <h3>Application Submitted Successfully!</h3>
+                <p>Your Application ID is: <strong id="newAppId" style="font-size: 1.2rem;"></strong></p>
+                <p style="margin-top: 0.5rem;">Please save this ID to track your application status.</p>
+                <button class="btn btn-primary" style="margin-top: 1rem; width: auto; margin-inline: auto;" onclick="document.getElementById('applySuccess').style.display='none'; document.getElementById('applicationForm').style.display='block'; document.getElementById('applicationForm').reset();">Submit Another</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: TRACK STATUS -->
+    <div id="screen-track" class="screen">
+        <div class="card">
+            <h2 class="card-title">Track Application Status</h2>
+            <p class="card-subtitle">Enter your Application ID or Aadhar Number to check current processing status.</p>
+            
+            <div class="form-row">
+                <div class="form-group" style="flex: 2;">
+                    <input type="text" id="trackSearch" placeholder="Enter Application ID e.g. APP-123456">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <button class="btn btn-primary" onclick="trackApplication()">
+                        <i data-lucide="search"></i> Check Status
+                    </button>
+                </div>
+            </div>
+
+            <div id="trackResult" style="display: none; margin-top: 2rem; padding: 1.5rem; background: var(--bg-light); border-radius: 12px; border: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 id="resName" style="color: var(--navy);">--</h3>
+                    <span id="resStatus" class="status-badge status-pending">--</span>
+                </div>
+                <p style="margin-bottom: 0.5rem;"><strong>Application ID:</strong> <span id="resId">--</span></p>
+                <p style="margin-bottom: 0.5rem;"><strong>Incident Type:</strong> <span id="resIncident">--</span></p>
+                <p style="margin-bottom: 0.5rem;"><strong>District:</strong> <span id="resDistrict">--</span></p>
+                <p style="margin-bottom: 0.5rem;"><strong>Submitted On:</strong> <span id="resDate">--</span></p>
+                
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                    <p id="resMessage" style="font-weight: 500; color: var(--text-muted);">Application is under review by the nodal officer.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4: ADMIN PORTAL -->
+    <div id="screen-admin" class="screen">
+        <div class="card" id="adminLogin" style="max-width: 500px;">
+            <h2 class="card-title">Official Employee Login</h2>
+            <p class="card-subtitle">Authorized Government Personnel Only</p>
+            <div class="form-group">
+                <label>Official Email ID</label>
+                <input type="email" id="adminEmail" placeholder="officer@gujarat.gov.in" value="admin@gujarat.gov.in">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter password" value="admin123">
+            </div>
+            <button class="btn btn-primary" onclick="adminLogin()">
+                <i data-lucide="log-in"></i> Secure Login
+            </button>
+        </div>
+
+        <div class="card" id="adminDashboard" style="display: none; max-width: 1000px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h2 class="card-title" style="text-align: left; margin: 0;">Admin Control Panel</h2>
+                    <p class="text-muted">Manage and approve Ex-Gratia applications.</p>
+                </div>
+                <button class="btn" style="width: auto; border: 1px solid var(--danger); color: var(--danger); background: transparent;" onclick="adminLogout()">Logout</button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>App ID</th>
+                            <th>Applicant Name</th>
+                            <th>District</th>
+                            <th>Incident</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; <span id="year"></span> Government of Gujarat. Ex-Gratia Relief Portal.</p>
+        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.5rem;">Designed for rapid, transparent, and secure citizen assistance.</p>
+    </footer>
+
+    <!-- Application Logic -->
+    <script>
+        // UI Initialization
+        document.getElementById('year').textContent = new Date().getFullYear();
+        lucide.createIcons();
+
+        // Screen Navigation Logic
+        window.navigate = function(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById('screen-' + screenId).classList.add('active');
+            document.getElementById('nav-' + screenId).classList.add('active');
+
+            if(screenId === 'dashboard') {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
+        };
+
+        // Weather/Emergency Fetch (Serverless)
+        async function fetchWeather() {
+            try {
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=23.0225&longitude=72.5714&current=temperature_2m,precipitation&timezone=auto');
+                const data = await res.json();
+                const temp = data.current.temperature_2m;
+                
+                const banner = document.getElementById('weather-banner');
+                const text = document.getElementById('banner-text');
+                
+                if (temp > 40) {
+                    text.innerText = `HEATWAVE ALERT: Current temperature in Ahmedabad is ${temp}°C. Stay indoors and hydrate.`;
+                    banner.style.display = 'flex';
+                } else if (data.current.precipitation > 10) {
+                    text.innerText = `HEAVY RAIN ALERT: Significant rainfall detected. Avoid unnecessary travel.`;
+                    banner.style.display = 'flex';
+                }
+            } catch(e) { console.log('Weather offline'); }
+        }
+        fetchWeather();
+
+        // Map Initialization
+        const map = L.map('map').setView([22.2587, 71.1924], 7);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        const locations = [
+            { lat: 23.0225, lng: 72.5714, name: "Ahmedabad", incidents: 1450 },
+            { lat: 21.1702, lng: 72.8311, name: "Surat", incidents: 820 },
+            { lat: 22.3072, lng: 73.1812, name: "Vadodara", incidents: 430 },
+            { lat: 22.3039, lng: 70.8022, name: "Rajkot", incidents: 310 }
+        ];
+
+        locations.forEach(loc => {
+            const circle = L.circleMarker([loc.lat, loc.lng], {
+                color: '#EF4444', fillColor: '#EF4444', fillOpacity: 0.5, radius: loc.incidents / 50
+            }).addTo(map);
+            circle.bindPopup(`<b>${loc.name}</b><br>${loc.incidents} Applications filed.`);
+        });
+
+        // Application Logic
+        window.handleApplicationSubmit = async function(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = '<i class="lucide lucide-loader"></i> Processing...';
+            btn.disabled = true;
+
+            const newApp = {
+                appId: 'APP-' + Math.floor(100000 + Math.random() * 900000),
+                name: document.getElementById('appName').value,
+                aadhar: document.getElementById('appAadhar').value,
+                mobile: document.getElementById('appMobile').value,
+                district: document.getElementById('appDistrict').value,
+                incident: document.getElementById('appIncident').value,
+                account: document.getElementById('appAccount').value,
+                ifsc: document.getElementById('appIFSC').value,
+                status: 'pending',
+                timestamp: new Date().toISOString(),
+                dateStr: new Date().toLocaleDateString()
+            };
+
+            try {
+                // Save to localStorage as primary storage (Offline Mode)
+                let localApps = JSON.parse(localStorage.getItem('apps') || '[]');
+                localApps.push(newApp);
+                localStorage.setItem('apps', JSON.stringify(localApps));
+
+                document.getElementById('applicationForm').style.display = 'none';
+                document.getElementById('applySuccess').style.display = 'block';
+                document.getElementById('newAppId').innerText = newApp.appId;
+                
+                loadDashboardStats();
+            } catch (error) {
+                alert("Error submitting application. Please try again.");
+            } finally {
+                btn.innerHTML = '<i data-lucide="send"></i> Submit Application Securely';
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        };
+
+        // Tracking Logic
+        window.trackApplication = async function() {
+            const searchId = document.getElementById('trackSearch').value.trim();
+            if(!searchId) return alert("Please enter an Application ID");
+
+            const resultDiv = document.getElementById('trackResult');
+            resultDiv.style.display = 'none';
+
+            try {
+                // Search LocalStorage for application data
+                let appData = null;
+                const localApps = JSON.parse(localStorage.getItem('apps') || '[]');
+                appData = localApps.find(a => a.appId === searchId || a.aadhar === searchId);
+
+                if(appData) {
+                    document.getElementById('resName').innerText = appData.name;
+                    document.getElementById('resId').innerText = appData.appId;
+                    document.getElementById('resIncident').innerText = appData.incident;
+                    document.getElementById('resDistrict').innerText = appData.district;
+                    document.getElementById('resDate').innerText = appData.dateStr || new Date().toLocaleDateString();
+                    
+                    const statusBadge = document.getElementById('resStatus');
+                    statusBadge.className = `status-badge status-${appData.status}`;
+                    statusBadge.innerText = appData.status.toUpperCase();
+
+                    let msg = "Application is under review.";
+                    if(appData.status === 'approved') msg = "Application approved. Amount is being disbursed to your bank account.";
+                    if(appData.status === 'rejected') msg = "Application rejected. Please contact your district nodal officer for clarification.";
+                    document.getElementById('resMessage').innerText = msg;
+
+                    resultDiv.style.display = 'block';
+                } else {
+                    alert("Application not found. Please check your ID.");
+                }
+            } catch (e) {
+                alert("Error fetching status.");
+            }
+        };
+
+        // Admin Logic
+        window.adminLogin = function() {
+            const email = document.getElementById('adminEmail').value;
+            const pwd = document.getElementById('adminPassword').value;
+            
+            if(email === 'admin@gujarat.gov.in' && pwd === 'admin123') {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                loadAdminTable();
+            } else {
+                alert("Invalid official credentials");
+            }
+        };
+
+        window.adminLogout = function() {
+            document.getElementById('adminLogin').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
+        };
+
+        async function loadAdminTable() {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading records...</td></tr>';
+            
+            try {
+                // Load from LocalStorage
+                let apps = JSON.parse(localStorage.getItem('apps') || '[]');
+
+                tbody.innerHTML = '';
+                apps.forEach(app => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${app.appId}</strong></td>
+                        <td>${app.name}</td>
+                        <td>${app.district}</td>
+                        <td>${app.incident}</td>
+                        <td><span class="status-badge status-${app.status}">${app.status.toUpperCase()}</span></td>
+                        <td>
+                            ${app.status === 'pending' ? `
+                                <button onclick="updateStatus('${app.docId}', '${app.appId}', 'approved')" style="background:#166534; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; margin-right:4px;">Approve</button>
+                                <button onclick="updateStatus('${app.docId}', '${app.appId}', 'rejected')" style="background:#991B1B; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Reject</button>
+                            ` : `<span style="color:var(--text-muted); font-size:0.85rem;">Processed</span>`}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Error loading records</td></tr>';
+            }
+        }
+
+        window.updateStatus = async function(docId, appId, newStatus) {
+            if(!confirm(`Are you sure you want to ${newStatus} application ${appId}?`)) return;
+            
+            try {
+                // Update local storage
+                let localApps = JSON.parse(localStorage.getItem('apps') || '[]');
+                const idx = localApps.findIndex(a => a.appId === appId);
+                if(idx !== -1) {
+                    localApps[idx].status = newStatus;
+                    localStorage.setItem('apps', JSON.stringify(localApps));
+                }
+
+                loadAdminTable();
+                loadDashboardStats();
+            } catch (e) {
+                alert("Error updating status.");
+            }
+        };
+
+        // Load Dashboard Stats
+        async function loadDashboardStats() {
+            try {
+                let apps = JSON.parse(localStorage.getItem('apps') || '[]');
+                
+                // Dummy data if empty
+                if(apps.length === 0) {
+                    document.getElementById('stat-total').innerText = "12,450";
+                    document.getElementById('stat-approved').innerText = "9,820";
+                    document.getElementById('stat-pending').innerText = "1,500";
+                    document.getElementById('stat-amount').innerText = "₹ 392.8 Cr";
+                    return;
+                }
+
+                const approved = apps.filter(a => a.status === 'approved').length;
+                const pending = apps.filter(a => a.status === 'pending').length;
+                const amount = approved * 400000; // 4 Lakhs per approval
+
+                document.getElementById('stat-total').innerText = apps.length.toLocaleString();
+                document.getElementById('stat-approved').innerText = approved.toLocaleString();
+                document.getElementById('stat-pending').innerText = pending.toLocaleString();
+                
+                if (amount >= 10000000) {
+                    document.getElementById('stat-amount').innerText = `₹ ${(amount / 10000000).toFixed(2)} Cr`;
+                } else if (amount > 0) {
+                    document.getElementById('stat-amount').innerText = `₹ ${(amount / 100000).toFixed(2)} Lakhs`;
+                } else {
+                    document.getElementById('stat-amount').innerText = "₹ 0";
+                }
+            } catch(e) {
+                console.log("Stats error", e);
+            }
+        }
+
+        // Init
+        loadDashboardStats();
+
+    </script>
+</body>
+</html>
