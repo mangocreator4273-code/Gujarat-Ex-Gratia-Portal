@@ -1,39 +1,406 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gujarat Ex-Gratia Portal | Official Relief Distribution</title>
-    <meta name="description"
-        content="Official Government of Gujarat portal for smooth and swift distribution of Ex-Gratia relief for citizens affected by natural calamities.">
-    <meta name="keywords" content="Gujarat Relief, Ex-Gratia, GSDMA, Gujarat Emergency, Disaster Relief, Relief Claim">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gujarat State Disaster Management Authority | Official Ex-Gratia Relief Portal</title>
+  <meta name="description" content="Official Government of Gujarat Disaster Management Ex-Gratia Relief Management & Direct Benefit Transfer Portal" />
 
-    <!-- DNS prefetch for speed -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://maps.googleapis.com">
-    <link rel="dns-prefetch" href="https://www.gstatic.com">
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Modern Typography: Outfit (non-render-blocking) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"
-        media="print" onload="this.media='all'">
-    <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    </noscript>
+  <!-- Leaflet GIS CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- Leaflet CSS + JS — via CDN since local files are missing -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Google Maps API with async loading -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNMOZHq82MjTbt4ILIArPpqA9hLlNO6zM&libraries=places&loading=async" async defer></script>
 
-    <!-- Google Maps API: async+defer so it never blocks page paint -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNMOZHq82MjTbt4ILIArPpqA9hLlNO6zM&libraries=places&loading=async"
-        async defer></script>
+  <!-- Inline Lucide Icon Renderer -->
+  <script>
+    // Inline Lucide icon renderer — replaces data-lucide attributes with actual SVGs
+    window.lucide = {
+      icons: {
+        'log-in': '<polyline points="15 3 21 3 21 21 15 21"></polyline><path d="M10 17l5-5-5-5"></path><line x1="15" y1="12" x2="3" y2="12"></line>',
+        'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>',
+        'check-circle': '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>',
+        'x-circle': '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>',
+        'indian-rupee': '<path d="M6 3h12"></path><path d="M6 8h12"></path><path d="m6 13 8.5 8"></path><path d="M6 13h3"></path><path d="M9 13a4 4 0 0 0 0-8"></path>',
+        'smartphone': '<rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line>',
+        'shield-check': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline>',
+        'zap': '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>',
+        'users': '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>'
+      },
+      createIcons: function() {
+        document.querySelectorAll('[data-lucide]').forEach(function(el) {
+          var name = el.getAttribute('data-lucide');
+          var paths = window.lucide.icons[name];
+          if (!paths) return;
+          var w = el.style.width || '24px';
+          var h = el.style.height || '24px';
+          var color = el.style.color || 'currentColor';
+          var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h +
+            '" viewBox="0 0 24 24" fill="none" stroke="' + color +
+            '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+          el.innerHTML = svg;
+          el.style.display = 'inline-flex';
+          el.style.alignItems = 'center';
+          el.style.justifyContent = 'center';
+        });
+      }
+    };
+  </script>
+
+  <!-- Combined Unified Stylesheet -->
+  <style>
+
+/* ==========================================================================
+   GUJARAT STATE DISASTER MANAGEMENT AUTHORITY (GSDMA) - EX-GRATIA PORTAL
+   COMBINED CORE DESIGN SYSTEM & STYLESHEET
+   ========================================================================== */
+
+:root {
+    /* Government of Gujarat & National Colors */
+    --primary: #FF9933;          /* National Saffron */
+    --primary-hover: #E68A00;
+    --primary-light: #FFB366;
+    --primary-navy: #002147;     /* State Navy Blue */
+    --primary-color: #002147;
+    --secondary: #138808;        /* India Green */
+    --secondary-color: #f1f5f9;
+    --accent-color: #f59e0b;     /* Amber */
+    --white: #ffffff;
+    --bg-color: #f8fafc;
+    --bg-gradient: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    --card-bg: rgba(255, 255, 255, 0.98);
+    --text-dark: #0F172A;
+    --text-light: #64748B;
+    --text-muted: #64748B;
+    --border: #E2E8F0;
+    --border-color: #E2E8F0;
+    --success: #138808;
+    --warning: #F59E0B;
+    --danger: #DC2626;
+    --info: #2563EB;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+}
+
+/* Screens visibility controller */
+.screen {
+    display: none !important;
+}
+.screen.active {
+    display: block !important;
+}
+
+/* Unified Navigation styles */
+.navbar-brand-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.nav-portal-title {
+    display: flex;
+    flex-direction: column;
+}
+.nav-portal-title h1 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary-navy);
+    margin: 0;
+    line-height: 1.2;
+}
+.nav-portal-title span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+.portal-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.portal-nav-links a {
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+.portal-nav-links a:hover, .portal-nav-links a.active {
+    color: var(--primary);
+    background-color: rgba(255, 153, 51, 0.08);
+}
+
+/* F1 Styles */
+    :root {
+      --primary-color: #002147;
+      /* Navy Blue */
+      --primary-light: #003366;
+      --secondary-color: #f1f5f9;
+      --accent-color: #f59e0b;
+      /* Amber */
+      --text-dark: #1e293b;
+      --text-light: #64748b;
+      --white: #ffffff;
+      --bg-color: #f8fafc;
+      --border-color: #e2e8f0;
+      --success: #10b981;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius-md: 0.5rem;
+      --radius-lg: 1rem;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Utilities */
+    .text-center {
+      text-align: center;
+    }
+
+    .text-primary {
+      color: var(--primary-color);
+    }
+
+    .text-white {
+      color: var(--white);
+    }
+
+    .font-semibold {
+      font-weight: 600;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-col {
+      flex-direction: column;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .justify-center {
+      justify-content: center;
+    }
+
+    .gap-2 {
+      gap: 0.5rem;
+    }
+
+    .gap-4 {
+      gap: 1rem;
+    }
+
+    .gap-6 {
+      gap: 1.5rem;
+    }
+
+    .gap-8 {
+      gap: 2rem;
+    }
+
+    .grid {
+      display: grid;
+    }
+
+    .grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    @media (max-width: 768px) {
+      .md-grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+
+      .md-grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .md-flex-col {
+        flex-direction: column;
+      }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-light);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-accent {
+      background-color: var(--accent-color);
+      color: var(--white);
+    }
+
+    .btn-accent:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .delay-100 {
+      animation-delay: 100ms;
+    }
+
+    .delay-200 {
+      animation-delay: 200ms;
+    }
+
+    .delay-300 {
+      animation-delay: 300ms;
+    }
+
+    .delay-400 {
+      animation-delay: 400ms;
+    }
+
+    /* Map Container Styles */
+    #map {
+      height: 100%;
+      width: 100%;
+      border-radius: inherit;
+      z-index: 1;
+    }
+
+    /* EMERGENCY ALERT BANNER */
+    .alert-banner {
+        background: #E11D48;
+        color: white;
+        padding: 8px 20px;
+        text-align: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+        position: relative;
+        z-index: 100;
+        display: none; /* hidden by default until fetched */
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        animation: slideDown 0.5s ease;
+    }
+
+    .alert-banner .live-dot {
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.5); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideDown {
+        from { transform: translateY(-100%); }
+        to { transform: translateY(0); }
+    }
 
 
-
-    <style>
+/* F2 Styles */
         :root {
             --primary: #FF9933;
             /* Saffron */
@@ -589,6 +956,13 @@
             border: 1px solid #e5e7eb;
         }
 
+        #map {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            z-index: 1;
+        }
+
         #map-container {
             width: 100%;
             height: 60vh;
@@ -894,179 +1268,235 @@
                 gap: 0.6rem;
             }
         }
-    </style>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-        import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, getDocs, query, where, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCrpEFbE7sAUeaL-2woz1I4UZOb6rcx1HY",
-            authDomain: "gujarat-ex-gratia-portal-a575b.firebaseapp.com",
-            projectId: "gujarat-ex-gratia-portal-a575b",
-            storageBucket: "gujarat-ex-gratia-portal-a575b.firebasestorage.app",
-            messagingSenderId: "910783170725",
-            appId: "1:910783170725:web:98fb683009e2278352a54c",
-            measurementId: "G-DPC3V78R1H"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = initializeFirestore(app, {
-            localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
-        });
-        const auth = getAuth(app);
-        const storage = getStorage(app);
-
-        // Expose to window for legacy script blocks
-        window.app = app;
-        window.db = db;
-        window._auth = auth;
-        window._RecaptchaVerifier = RecaptchaVerifier;
-        window._signInWithPhoneNumber = signInWithPhoneNumber;
-        
-        // Firestore functions
-        window.getFirestore = getFirestore;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.getDocs = getDocs;
-        window.query = query;
-        window.where = where;
-        window.doc = doc;
-        window.updateDoc = updateDoc;
-
-        // Storage functions
-        window.getStorage = getStorage;
-        window.ref = ref;
-        window.uploadBytes = uploadBytes;
-        window.getDownloadURL = getDownloadURL;
-
-        // SAVE USER — callable from anywhere as window.saveUser(name, phone)
-        window.saveUser = async function (name, phone) {
-            await addDoc(collection(db, "users"), {
-                name,
-                phone,
-                createdAt: new Date().toISOString()
-            });
-        };
-
-        // GLOBAL ACCESS — Storage
-        window.storage = storage;
-        window.ref = ref;
-        window.uploadBytes = uploadBytes;
-        window.getDownloadURL = getDownloadURL;
-
-        // UPLOAD FILE — callable from anywhere as window.uploadFile(file)
-        window.uploadFile = async function (file) {
-            // Append timestamp to avoid name collisions
-            const uniqueFilename = Date.now() + "_" + file.name;
-            const storageRef = ref(storage, "documents/" + uniqueFilename);
-            const snapshot = await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            return downloadURL;
-        };
-
-        // WEATHER API FETCH
-        async function fetchWeatherAlerts() {
-            try {
-                // Ahmedabad coordinates
-                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=23.0225&longitude=72.5714&current=temperature_2m,precipitation&timezone=auto');
-                if (!res.ok) throw new Error('Weather fetch failed');
-                const data = await res.json();
-                const temp = data.current.temperature_2m;
-                const precip = data.current.precipitation;
-
-                const banner = document.getElementById('emergency-banner');
-                const bannerText = document.getElementById('banner-text');
-
-                if (banner && bannerText) {
-                    let alertMsg = '';
-                    if (temp >= 40) {
-                        alertMsg = `LIVE ALERT: Heat Wave Warning! Current temperature is ${temp}°C. Stay Hydrated and Safe.`;
-                    } else if (precip >= 10) {
-                        alertMsg = `LIVE ALERT: Heavy Rainfall Alert! Current precipitation is ${precip}mm. Take precautions.`;
-                    } else {
-                        alertMsg = `WEATHER UPDATE: Current Temperature in Gujarat is ${temp}°C.`;
-                        banner.style.background = '#2563EB'; // Info blue
-                    }
-                    bannerText.innerText = alertMsg;
-                    banner.style.display = 'flex'; // Unhide when loaded
-                }
-            } catch (error) {
-                console.warn("Weather fetch failed (likely offline). Banner hidden.");
-                const banner = document.getElementById('emergency-banner');
-                if (banner) banner.style.display = 'none';
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', fetchWeatherAlerts);
-    </script>
+  </style>
 </head>
 
 <body>
 
-    <!-- EMERGENCY BANNER -->
-    <div class="alert-banner" id="emergency-banner" style="display: none;">
-        <span class="live-dot"></span>
-        <span id="banner-text">Fetching live weather alerts...</span>
-        <button onclick="document.getElementById('emergency-banner').style.display='none'"
-            style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; margin-left:auto;">&times;</button>
+  <!-- EMERGENCY WEATHER ALERT BANNER -->
+  <div class="alert-banner" id="emergency-banner" style="display: none;">
+    <span class="live-dot"></span>
+    <span id="banner-text">Fetching live weather alerts for Gujarat...</span>
+    <button onclick="document.getElementById('emergency-banner').style.display='none'"
+      style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; margin-left:auto;" aria-label="Close Alert">&times;</button>
+  </div>
+
+  <!-- OFFICIAL GOVERNMENT HEADER & NAVIGATION -->
+  <header style="background-color: var(--white); border-bottom: 2px solid #E2E8F0; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-sm);">
+    <div class="container flex justify-between items-center" style="padding: 0.75rem 1.5rem; max-width: 1300px; margin: 0 auto;">
+      <!-- Brand Logos & Title -->
+      <div class="navbar-brand-wrap" style="cursor: pointer;" onclick="navigateTo('home-screen')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Seal_of_Gujarat.svg" alt="Emblem of Gujarat" style="height: 52px; width: auto;" onerror="this.style.display='none'" />
+        <img src="https://upload.wikimedia.org/wikipedia/en/6/6b/National_Disaster_Management_Authority_Logo.png" alt="NDMA Logo" style="height: 48px; width: auto;" onerror="this.style.display='none'" />
+        <div class="nav-portal-title">
+          <h1 style="font-size: 1.15rem; font-weight: 700; color: #002147; margin: 0;">ગુજરાત સરકાર | Government of Gujarat</h1>
+          <span style="font-size: 0.8rem; color: #64748B; font-weight: 600;">Gujarat State Disaster Management Authority &bull; Ex-Gratia Portal</span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="portal-nav-links" id="main-nav-links">
+        <a href="#home" id="nav-link-home" class="active" onclick="navigateTo('home-screen')">Home</a>
+        <a href="#schemes" onclick="navigateTo('home-screen', 'schemes-section')">Relief Schemes</a>
+        <a href="#map" onclick="navigateTo('home-screen', 'map-section')">District GIS Map</a>
+        <a href="#citizen" id="nav-link-citizen" onclick="handleNavCitizen()">Citizen Portal</a>
+        <a href="#admin" id="nav-link-admin" onclick="handleNavAdmin()">Officers' Login</a>
+      </nav>
+
+      <!-- Language Switcher & User Greeting Area -->
+      <div id="nav-actions" style="display: flex; align-items: center; gap: 0.75rem;">
+        <select id="lang-select" class="lang-select" onchange="setLanguage(this.value)" style="padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid #CBD5E1; font-weight: 600; font-size: 0.85rem; background: #FFF;">
+          <option value="en">English</option>
+          <option value="gu">ગુજરાતી</option>
+          <option value="hi">हिंदी</option>
+        </select>
+
+        <span id="user-greeting" style="font-weight: 600; font-size: 0.85rem; color: #0F172A; display: none;"></span>
+
+        <button id="logout-btn" class="btn" onclick="logout()" style="display: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; border: 1px solid #DC2626; color: #DC2626; background: transparent; border-radius: 6px;">
+          Logout
+        </button>
+      </div>
     </div>
+  </header>
 
-    <!-- NAVBAR -->
-    <nav>
-        <div class="brand">
+  <!-- ============================================================== -->
+  <!-- SCREEN 1: PUBLIC HOME / DISASTER MANAGEMENT LANDING DASHBOARD   -->
+  <!-- ============================================================== -->
+  <div id="home-screen" class="screen active">
+    <main>
+        <main>
+    <!-- Hero Section -->
+    <section
+      style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); padding: 4rem 0; color: var(--white); text-align: center;">
+      <div class="container animate-fade-in">
+        <h2 class="font-bold" style="font-size: 2.5rem; margin-bottom: 1rem;">
+          Feedback & Grievance Redressal
+        </h2>
+        <p style="font-size: 1.125rem; max-width: 800px; margin: 0 auto 2rem auto; opacity: 0.9;">
+          A transparent and efficient portal for citizens to track and manage ex-gratia claims. We are committed to fast
+          processing and timely updates.
+        </p>
+        <button class="btn btn-accent" style="padding: 0.75rem 1.5rem; font-size: 1.125rem;"
+          onclick="handleApplyClick()">
+          <i data-lucide="log-in" style="width: 20px; height: 20px;"></i>
+          Login / Apply for Ex-Gratia
+        </button>
+      </div>
+    </section>
 
-            <img src="https://upload.wikimedia.org/wikipedia/en/6/6b/National_Disaster_Management_Authority_Logo.png"
-                alt="NDMA Logo" style="height: 48px;" onerror="this.style.display='none'">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Seal_of_Gujarat.svg" alt="Government of Gujarat Logo" style="height: 56px;" onerror="this.style.display='none'">
-            <span style="color:white; margin-left:10px;">Government of Gujarat Portal</span>
+    <!-- Stats Dashboard -->
+    <section class="container" style="padding: 3rem 1.5rem; margin-top: -2rem; position: relative; z-index: 10;">
+      <div class="grid grid-cols-4 md-grid-cols-2 md-flex-col gap-6">
+        <div class="card animate-fade-in delay-100" style="display: flex; align-items: center; gap: 1rem;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 50%; background-color: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center;">
+            <i data-lucide="file-text" style="width: 24px; height: 24px; color: var(--info);"></i>
+          </div>
+          <div>
+            <p class="text-light font-semibold" style="font-size: 0.875rem;">Total Applications</p>
+            <h3 id="stat-total" class="font-bold text-primary" style="font-size: 1.5rem; margin: 0.25rem 0 0 0;">...</h3>
+          </div>
         </div>
-        <div style="display:flex; align-items:center; gap:1rem;">
-            <!-- Admin Panel Button (always visible) -->
-            <button onclick="openAdmin()" style="padding: 0.45rem 1.1rem; font-size: 0.85rem; font-weight: 600;
-                       background: rgba(255,255,255,0.12); color: #fff;
-                       border: 1px solid rgba(255,255,255,0.35); border-radius: 8px;
-                       cursor: pointer; transition: all 0.2s;
-                       backdrop-filter: blur(4px);"
-                onmouseover="this.style.background='rgba(255,153,51,0.75)'; this.style.borderColor='#FF9933';"
-                onmouseout="this.style.background='rgba(255,255,255,0.12)'; this.style.borderColor='rgba(255,255,255,0.35)';">&#128274;
-                Admin Panel</button>
 
-            <div class="nav-actions hidden" id="nav-actions">
-                <!-- Language Toggle -->
-                <select id="lang-select" onchange="setLanguage(this.value)" style="
-                    background: rgba(255, 255, 255, 0.1);
-                    color: white;
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                    border-radius: 8px;
-                    padding: 0.45rem 0.8rem;
-                    font-size: 0.85rem;
-                    cursor: pointer;
-                    outline: none;
-                    backdrop-filter: blur(4px);
-                ">
-                    <option value="en" style="color: black;">English</option>
-                    <option value="gu" style="color: black;">ગુજરાતી</option>
-                    <option value="hi" style="color: black;">हिन्दी</option>
-                </select>
-                <span class="user-greeting" id="user-greeting" style="color:white;">Welcome, User</span>
-                <button class="btn btn-outline btn-auto"
-                    style="padding: 0.5rem 1rem; font-size: 0.9rem; color: white; border-color: white;"
-                    onclick="logout()">Logout</button>
+        <div class="card animate-fade-in delay-200" style="display: flex; align-items: center; gap: 1rem;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 50%; background-color: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center;">
+            <i data-lucide="check-circle" style="width: 24px; height: 24px; color: var(--success);"></i>
+          </div>
+          <div>
+            <p class="text-light font-semibold" style="font-size: 0.875rem;">Disbursed Applications</p>
+            <h3 id="stat-disbursed" class="font-bold text-primary" style="font-size: 1.5rem; margin: 0.25rem 0 0 0;">...</h3>
+          </div>
+        </div>
+
+        <div class="card animate-fade-in delay-300" style="display: flex; align-items: center; gap: 1rem;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 50%; background-color: rgba(239, 68, 68, 0.1); display: flex; align-items: center; justify-content: center;">
+            <i data-lucide="x-circle" style="width: 24px; height: 24px; color: var(--danger);"></i>
+          </div>
+          <div>
+            <p class="text-light font-semibold" style="font-size: 0.875rem;">Rejected Applications</p>
+            <h3 id="stat-rejected" class="font-bold text-primary" style="font-size: 1.5rem; margin: 0.25rem 0 0 0;">...</h3>
+          </div>
+        </div>
+
+        <div class="card animate-fade-in delay-400" style="display: flex; align-items: center; gap: 1rem;">
+          <div
+            style="width: 48px; height: 48px; border-radius: 50%; background-color: rgba(245, 158, 11, 0.1); display: flex; align-items: center; justify-content: center;">
+            <i data-lucide="indian-rupee" style="width: 24px; height: 24px; color: var(--accent-color);"></i>
+          </div>
+          <div>
+            <p class="text-light font-semibold" style="font-size: 0.875rem;">Total Disbursed Amount</p>
+            <h3 id="stat-amount" class="font-bold text-primary" style="font-size: 1.5rem; margin: 0.25rem 0 0 0;">...</h3>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="container" style="padding: 3rem 1.5rem;">
+      <h2 class="font-bold text-center text-primary" style="font-size: 2rem; margin-bottom: 2rem;">
+        Geo-Spatial Analysis Dashboard
+      </h2>
+      <div class="card" style="padding: 0; overflow: hidden; height: 500px; position: relative;">
+        <div id="map"></div>
+      </div>
+    </section>
+
+    <!-- Features and Flow -->
+    <section style="background-color: var(--white); padding: 4rem 0;">
+      <div class="container">
+        <h2 class="font-bold text-center text-primary" style="font-size: 2rem; margin-bottom: 3rem;">
+          Key Features
+        </h2>
+
+        <div class="grid grid-cols-4 md-grid-cols-2 gap-8" style="margin-bottom: 3rem;">
+          <div class="text-center">
+            <div
+              style="width: 80px; height: 80px; border-radius: 50%; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+              <i data-lucide="smartphone" style="width: 32px; height: 32px; color: var(--info);"></i>
             </div>
+            <h3 class="font-semibold text-primary" style="font-size: 1.25rem; margin-bottom: 0.5rem;">Mobile Friendly
+            </h3>
+            <p class="text-light">Apply and track from your smartphone easily.</p>
+          </div>
+          <div class="text-center">
+            <div
+              style="width: 80px; height: 80px; border-radius: 50%; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+              <i data-lucide="shield-check" style="width: 32px; height: 32px; color: var(--success);"></i>
+            </div>
+            <h3 class="font-semibold text-primary" style="font-size: 1.25rem; margin-bottom: 0.5rem;">Secure &
+              Transparent</h3>
+            <p class="text-light">End-to-end encryption and transparent tracking.</p>
+          </div>
+          <div class="text-center">
+            <div
+              style="width: 80px; height: 80px; border-radius: 50%; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+              <i data-lucide="zap" style="width: 32px; height: 32px; color: var(--accent-color);"></i>
+            </div>
+            <h3 class="font-semibold text-primary" style="font-size: 1.25rem; margin-bottom: 0.5rem;">Fast Processing
+            </h3>
+            <p class="text-light">Automated workflows for quicker disbursements.</p>
+          </div>
+          <div class="text-center">
+            <div
+              style="width: 80px; height: 80px; border-radius: 50%; background-color: var(--bg-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+              <i data-lucide="users" style="width: 32px; height: 32px; color: var(--primary-color);"></i>
+            </div>
+            <h3 class="font-semibold text-primary" style="font-size: 1.25rem; margin-bottom: 0.5rem;">Citizen Centric
+            </h3>
+            <p class="text-light">Designed keeping the citizens of Gujarat first.</p>
+          </div>
         </div>
-    </nav>
 
-    <div class="container">
+        <div class="card" style="background-color: var(--bg-color); border: none;">
+          <h3 class="font-bold text-center text-primary" style="font-size: 1.5rem; margin-bottom: 2rem;">Process Flow
+          </h3>
+          <div class="flex justify-between md-flex-col gap-4 text-center">
+            <div class="flex-1">
+              <div class="font-bold text-white bg-primary"
+                style="background-color: var(--primary-color); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+                1</div>
+              <h4 class="font-semibold">Registration</h4>
+              <p class="text-light" style="font-size: 0.875rem;">Create an account securely.</p>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-white bg-primary"
+                style="background-color: var(--primary-color); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+                2</div>
+              <h4 class="font-semibold">Application</h4>
+              <p class="text-light" style="font-size: 0.875rem;">Submit ex-gratia claim details.</p>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-white bg-primary"
+                style="background-color: var(--primary-color); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+                3</div>
+              <h4 class="font-semibold">Verification</h4>
+              <p class="text-light" style="font-size: 0.875rem;">Officials verify the submitted data.</p>
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-white bg-primary"
+                style="background-color: var(--primary-color); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+                4</div>
+              <h4 class="font-semibold">Disbursement</h4>
+              <p class="text-light" style="font-size: 0.875rem;">Amount is credited to bank account.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-        <!-- 1. LOGIN SCREEN -->
-        <div id="login-screen" class="screen active">
+    </main>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- SCREEN 2: CITIZEN LOGIN (OTP & PHONE AUTH)                     -->
+  <!-- ============================================================== -->
+          <div id="login-screen" class="screen active">
             <div class="card text-center">
                 <h1 class="title">Citizen Login</h1>
                 <p class="subtitle">Enter your mobile number to continue</p>
@@ -1115,42 +1545,12 @@
         </div>
 
         <!-- 1b. ADMIN LOGIN SCREEN -->
-        <div id="admin-login-screen" class="screen">
-            <div class="card text-center">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏛️</div>
-                <h1 class="title">Admin / Officer Login</h1>
-                <p class="subtitle">Authorized government personnel only</p>
 
-                <div class="form-group" style="text-align:left;">
-                    <label for="admin-user">Username</label>
-                    <input type="text" id="admin-user" placeholder="Enter admin username"
-                        onkeydown="if(event.key==='Enter') window.adminLogin()">
-                </div>
 
-                <div class="form-group" style="text-align:left;">
-                    <label for="admin-pass">Password</label>
-                    <input type="password" id="admin-pass" placeholder="Enter password"
-                        onkeydown="if(event.key==='Enter') window.adminLogin()">
-                </div>
-
-                <button class="btn btn-primary" id="admin-login-btn" onclick="window.adminLogin()">
-                    🔑 Login to Admin Panel
-                </button>
-
-                <div class="mt-2">
-                    <button class="btn-link" onclick="switchMode('login-screen')"
-                        style="font-size:0.85rem; color:var(--text-muted);">← Back to Citizen Login</button>
-                </div>
-
-                <div
-                    style="margin-top: 1.5rem; padding: 0.75rem; background: #FFFBEB; border-radius: var(--radius-md); border: 1px solid #FEF3C7; font-size: 0.8rem; color:#92400E;">
-                    ⚠️ Unauthorized access is a punishable offence under IT Act, 2000.
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. REGISTER SCREEN -->
-        <div id="register-screen" class="screen">
+  <!-- ============================================================== -->
+  <!-- SCREEN 3: CITIZEN REGISTRATION (AADHAAR & VERHOEFF VALIDATION) -->
+  <!-- ============================================================== -->
+          <div id="register-screen" class="screen">
             <div class="card">
                 <h1 class="title text-center">New Registration</h1>
                 <p class="subtitle text-center">Complete your citizen profile</p>
@@ -1229,7 +1629,12 @@
         </div>
 
         <!-- 3. CITIZEN DASHBOARD -->
-        <div id="citizen-dashboard" class="screen">
+
+
+  <!-- ============================================================== -->
+  <!-- SCREEN 4: CITIZEN DASHBOARD (APPLICATION STATUS & TRACKING)    -->
+  <!-- ============================================================== -->
+          <div id="citizen-dashboard" class="screen">
 
             <!-- LIVE WEATHER WIDGET -->
             <div class="weather-widget" id="weather-widget">
@@ -1306,7 +1711,12 @@
         </div>
 
         <!-- 4. SUBMIT APPLICATION FORM -->
-        <div id="application-form-screen" class="screen">
+
+
+  <!-- ============================================================== -->
+  <!-- SCREEN 5: EX-GRATIA RELIEF APPLICATION FORM (GEO-TAGGING)      -->
+  <!-- ============================================================== -->
+          <div id="application-form-screen" class="screen">
             <div class="card card-large">
                 <button class="btn-link mb-2" onclick="switchMode('citizen-dashboard')">← Back to Dashboard</button>
                 <h2 class="title mb-2">Ex-Gratia Application</h2>
@@ -1404,7 +1814,52 @@
 
 
         <!-- 6. ADMIN DASHBOARD -->
-        <div id="admin-dashboard-screen" class="screen">
+
+
+  <!-- ============================================================== -->
+  <!-- SCREEN 6: OFFICIAL / OFFICER LOGIN                             -->
+  <!-- ============================================================== -->
+          <div id="admin-login-screen" class="screen">
+            <div class="card text-center">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏛️</div>
+                <h1 class="title">Admin / Officer Login</h1>
+                <p class="subtitle">Authorized government personnel only</p>
+
+                <div class="form-group" style="text-align:left;">
+                    <label for="admin-user">Username</label>
+                    <input type="text" id="admin-user" placeholder="Enter admin username"
+                        onkeydown="if(event.key==='Enter') window.adminLogin()">
+                </div>
+
+                <div class="form-group" style="text-align:left;">
+                    <label for="admin-pass">Password</label>
+                    <input type="password" id="admin-pass" placeholder="Enter password"
+                        onkeydown="if(event.key==='Enter') window.adminLogin()">
+                </div>
+
+                <button class="btn btn-primary" id="admin-login-btn" onclick="window.adminLogin()">
+                    🔑 Login to Admin Panel
+                </button>
+
+                <div class="mt-2">
+                    <button class="btn-link" onclick="switchMode('login-screen')"
+                        style="font-size:0.85rem; color:var(--text-muted);">← Back to Citizen Login</button>
+                </div>
+
+                <div
+                    style="margin-top: 1.5rem; padding: 0.75rem; background: #FFFBEB; border-radius: var(--radius-md); border: 1px solid #FEF3C7; font-size: 0.8rem; color:#92400E;">
+                    ⚠️ Unauthorized access is a punishable offence under IT Act, 2000.
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. REGISTER SCREEN -->
+
+
+  <!-- ============================================================== -->
+  <!-- SCREEN 7: OFFICIAL ADMIN DASHBOARD & REVIEW WORKFLOW           -->
+  <!-- ============================================================== -->
+          <div id="admin-dashboard-screen" class="screen">
             <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;" id="admin-tabs">
                 <button class="btn btn-primary btn-auto" id="admin-tab-apps"
                     onclick="switchAdminTab('apps')">Applications</button>
@@ -1417,19 +1872,19 @@
                 <div class="stats-grid" id="admin-stats">
                     <div class="stat-card primary">
                         <div class="stat-title">Total Applications</div>
-                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-value" id="admin-stat-total">0</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-title">Pending</div>
-                        <div class="stat-value" id="stat-pending" style="color:var(--warning)">0</div>
+                        <div class="stat-value" id="admin-stat-pending" style="color:var(--warning)">0</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-title">Approved</div>
-                        <div class="stat-value" id="stat-approved" style="color:var(--success)">0</div>
+                        <div class="stat-value" id="admin-stat-approved" style="color:var(--success)">0</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-title">Rejected</div>
-                        <div class="stat-value" id="stat-rejected" style="color:var(--danger)">0</div>
+                        <div class="stat-value" id="admin-stat-rejected" style="color:var(--danger)">0</div>
                     </div>
                 </div>
 
@@ -1495,7 +1950,12 @@
         </div>
 
         <!-- 7. ADMIN MAP SCREEN -->
-        <div id="admin-map-screen" class="screen">
+
+
+  <!-- ============================================================== -->
+  <!-- SCREEN 8: OFFICIAL GIS SATELLITE OPERATIONS MAP                -->
+  <!-- ============================================================== -->
+          <div id="admin-map-screen" class="screen">
             <div class="card card-large" style="max-width: 1000px; padding: 1.5rem;">
                 <div class="list-header" style="margin-bottom: 1rem;">
                     <h2 style="margin: 0;">🗺️ GIS Spatial View</h2>
@@ -1510,7 +1970,12 @@
 
     </div>
 
-    <!-- MODAL FOR ADMIN APPLICATION REVIEW -->
+
+
+  <!-- ============================================================== -->
+  <!-- MODALS (APPLICATION REVIEW, DOC PREVIEW, CITIZEN TRACKER)       -->
+  <!-- ============================================================== -->
+      <!-- MODAL FOR ADMIN APPLICATION REVIEW -->
     <div class="modal-overlay" id="review-modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('review-modal')">&times;</span>
@@ -1531,6 +1996,12 @@
                         <input type="checkbox" id="review-photos-verified" style="width:auto; transform:scale(1.2);"> I
                         have verified all submitted photos
                     </label>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight:600; color:var(--text-dark);">Relief Sanction Amount (₹)</label>
+                    <input type="number" id="review-sanction-amount" min="1000" step="1000" placeholder="E.g. 50000" style="padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 6px; width: 100%;">
+                    <small style="color: #64748B;">SDRF standard norms: Flood (₹50k), Cyclone (₹95k), Earthquake (₹1.2L), Fire (₹80k).</small>
                 </div>
 
                 <div class="form-group">
@@ -1568,9 +2039,171 @@
 
 
     <!-- ============================================== -->
-    <!-- JAVASCRIPT / LOGIC (LOCAL STORAGE MOCK BACKEND)  -->
-    <!-- ============================================== -->
-    <script>
+
+
+  <!-- ============================================================== -->
+  <!-- UNIFIED OFFICIAL FOOTER                                        -->
+  <!-- ============================================================== -->
+  <footer style="background: #002147; color: white; padding: 3.5rem 1.5rem 1.5rem; margin-top: 3rem;">
+    <div class="container" style="max-width: 1250px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2.5rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Seal_of_Gujarat.svg" alt="Gujarat Seal" style="height: 44px; filter: brightness(0) invert(1);" />
+          <h4 style="margin: 0; color: #FF9933; font-size: 1.1rem;">Gujarat State Disaster Management Authority</h4>
+        </div>
+        <p style="font-size: 0.88rem; line-height: 1.6; opacity: 0.85;">
+          An initiative of the Government of Gujarat to deliver swift, transparent, and direct financial assistance (Ex-Gratia) to disaster-affected citizens through direct benefit transfer (DBT) and satellite-backed verification.
+        </p>
+      </div>
+
+      <div>
+        <h4 style="margin-bottom: 1rem; color: #FF9933; font-size: 1.05rem;">Quick Links</h4>
+        <ul style="list-style: none; font-size: 0.88rem; opacity: 0.85; padding: 0; line-height: 2;">
+          <li><a href="#home" onclick="navigateTo('home-screen')" style="color: white; text-decoration: none;">&rarr; Home / Public Dashboard</a></li>
+          <li><a href="#schemes" onclick="navigateTo('home-screen', 'schemes-section')" style="color: white; text-decoration: none;">&rarr; Relief Schemes & Norms</a></li>
+          <li><a href="#citizen" onclick="handleNavCitizen()" style="color: white; text-decoration: none;">&rarr; Citizen Application Portal</a></li>
+          <li><a href="#admin" onclick="handleNavAdmin()" style="color: white; text-decoration: none;">&rarr; Officers' Login & Review Console</a></li>
+          <li><a href="https://gsdma.org" target="_blank" style="color: white; text-decoration: none;">&rarr; Official GSDMA Website</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 style="margin-bottom: 1rem; color: #FF9933; font-size: 1.05rem;">Emergency Helpdesk</h4>
+        <p style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;"><strong>State Emergency Operations Centre (SEOC):</strong></p>
+        <p style="font-size: 0.88rem; opacity: 0.85;">Toll Free: <strong>1070</strong> (State) / <strong>1077</strong> (District)</p>
+        <p style="font-size: 0.88rem; opacity: 0.85; margin-top: 0.3rem;">Email: relief-gujarat@nic.in / seoc-guj@gujarat.gov.in</p>
+        <p style="font-size: 0.88rem; opacity: 0.85; margin-top: 0.3rem;">Block No. 11, New Sachivalaya, Gandhinagar - 382010</p>
+        <div style="margin-top: 1.25rem; display: flex; gap: 1rem; align-items: center;">
+          <img src="https://upload.wikimedia.org/wikipedia/en/9/95/Digital_India_logo.svg" alt="Digital India" style="height: 30px; filter: brightness(0) invert(1);" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/b/b2/Aadhaar_Logo.svg" alt="Aadhaar" style="height: 30px; filter: brightness(0) invert(1);" />
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center; padding-top: 2rem; margin-top: 2.5rem; border-top: 1px solid rgba(255,255,255,0.12); font-size: 0.8rem; opacity: 0.7;">
+      &copy; <span id="year">2026</span> Government of Gujarat. Revenue & Disaster Management Authority. All Rights Reserved.
+    </div>
+  </footer>
+
+  <!-- ============================================================== -->
+  <!-- UNIFIED CLIENT LOGIC & INTEGRATIONS                             -->
+  <!-- ============================================================== -->
+  <!-- Firebase Web SDK Integration (Realtime Phone OTP, Cloud Storage & Firestore) -->
+  <script type="module" src="firebase-config.js"></script>
+
+  <script>
+    // Unified Navigation and Screen Controller
+    function navigateTo(screenId, sectionId) {
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(s => s.classList.remove('active'));
+
+      const target = document.getElementById(screenId);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Track Screen in Firebase Analytics
+        if (typeof window.trackEvent === 'function') {
+          window.trackEvent('screen_view', { screen_name: screenId });
+        }
+
+        // If target is home-screen and sectionId is requested, scroll to it
+        if (screenId === 'home-screen' && sectionId) {
+          setTimeout(() => {
+            const el = document.getElementById(sectionId);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }
+
+        // If home-screen opened, re-trigger Leaflet map resize
+        if (screenId === 'home-screen' && window._homeMap) {
+          setTimeout(() => { window._homeMap.invalidateSize(); }, 200);
+        }
+
+        // If admin-map-screen opened, re-trigger admin map resize
+        if (screenId === 'admin-map-screen' && window.adminMap) {
+          setTimeout(() => { window.adminMap.invalidateSize(); }, 200);
+        }
+
+        // Update nav active link state
+        updateNavLinks(screenId);
+      }
+    }
+
+    function updateNavLinks(activeScreenId) {
+      const links = document.querySelectorAll('.portal-nav-links a');
+      links.forEach(l => l.classList.remove('active'));
+      const homeLink = document.getElementById('nav-link-home');
+      const citizenLink = document.getElementById('nav-link-citizen');
+      const adminLink = document.getElementById('nav-link-admin');
+
+      if (activeScreenId === 'home-screen' && homeLink) homeLink.classList.add('active');
+      if (['login-screen', 'register-screen', 'citizen-dashboard', 'application-form-screen'].includes(activeScreenId) && citizenLink) {
+        citizenLink.classList.add('active');
+      }
+      if (['admin-login-screen', 'admin-dashboard-screen', 'admin-map-screen'].includes(activeScreenId) && adminLink) {
+        adminLink.classList.add('active');
+      }
+    }
+
+    function handleNavCitizen() {
+      if (currentUser && currentUser.role === 'Citizen') {
+        navigateTo('citizen-dashboard');
+      } else {
+        navigateTo('login-screen');
+      }
+    }
+
+    function handleNavAdmin() {
+      if (currentUser && currentUser.role !== 'Citizen') {
+        navigateTo('admin-dashboard-screen');
+      } else {
+        navigateTo('admin-login-screen');
+      }
+    }
+
+    function handleApplyClick() {
+      if (currentUser && currentUser.role === 'Citizen') {
+        navigateTo('application-form-screen');
+      } else {
+        navigateTo('login-screen');
+      }
+    }
+
+    // Hash change routing
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash;
+      if (hash === '#admin' || hash === '#admin-login') {
+        handleNavAdmin();
+      } else if (hash === '#citizen' || hash === '#login') {
+        handleNavCitizen();
+      } else if (hash === '#apply') {
+        handleApplyClick();
+      } else if (hash === '#register') {
+        navigateTo('register-screen');
+      } else if (hash === '#admin-map') {
+        openAdminMap();
+      } else if (hash === '#home' || hash === '' || hash === '#schemes' || hash === '#map') {
+        navigateTo('home-screen');
+      }
+    });
+
+    // Initialize Lucide icons on load
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+      // Check initial hash
+      if (window.location.hash === '#admin') {
+        handleNavAdmin();
+      } else if (window.location.hash === '#login') {
+        handleNavCitizen();
+      }
+    });
+  </script>
+
+  <!-- F2 Core Application Logic (Auth, Verhoeff, Form, DB, Review, Modals) -->
+  <script>
         /**
          * Global State
          */
@@ -1683,14 +2316,23 @@
         function updateNav() {
             const navActions = document.getElementById('nav-actions');
             const userGreeting = document.getElementById('user-greeting');
+            const logoutBtn = document.getElementById('logout-btn');
 
             if (currentUser) {
-                navActions.classList.remove('hidden');
-                userGreeting.textContent = currentUser.role === 'admin'
-                    ? `Admin Portal`
-                    : `Welcome, ${currentUser.name || currentUser.phone}`;
+                if (navActions) navActions.classList.remove('hidden');
+                if (logoutBtn) logoutBtn.style.display = 'inline-block';
+                if (userGreeting) {
+                    userGreeting.style.display = 'inline-block';
+                    userGreeting.textContent = (currentUser.role === 'admin' || currentUser.role === 'Admin')
+                        ? `Admin Portal`
+                        : `Welcome, ${currentUser.name || currentUser.phone}`;
+                }
             } else {
-                navActions.classList.add('hidden');
+                if (logoutBtn) logoutBtn.style.display = 'none';
+                if (userGreeting) {
+                    userGreeting.style.display = 'none';
+                    userGreeting.textContent = '';
+                }
             }
         }
 
@@ -1970,6 +2612,10 @@
                 } else {
                     const result = await window.confirmationResult.confirm(otp);
                     console.log("Firebase Auth Success:", result.user);
+                }
+
+                if (typeof window.trackEvent === 'function') {
+                    window.trackEvent('login', { method: 'phone_otp' });
                 }
 
                 const localUser = DB.findCitizenByPhone(currentAuthPhone);
@@ -2322,6 +2968,9 @@
                 return;
             }
 
+            const norms = { 'Flood': 50000, 'Cyclone': 95000, 'Earthquake': 120000, 'Fire': 80000, 'Other': 50000 };
+            const defaultRelief = norms[calamityType] || 50000;
+
             const appDetails = {
                 userId: currentUser.id,
                 applicantName: currentUser.name,
@@ -2332,6 +2981,7 @@
                 calamityLocation,
                 landRegistryNumber,
                 description,
+                reliefSanctioned: defaultRelief,
                 bankName,
                 bankBranch,
                 bankAccountNumber: bankAcc,
@@ -2410,12 +3060,58 @@
                         console.warn("Firestore save failed, saved locally", e);
                     }
 
+                    if (typeof window.trackEvent === 'function') {
+                        window.trackEvent('application_submitted', {
+                            calamity: appObj.calamityType || 'General',
+                            district: appObj.district || 'Rajkot'
+                        });
+                    }
+
+                    // 3b. Real-Time Backend Sync (REST Server)
+                    try {
+                        const syncPayload = {
+                            applicantName: appObj.applicantName || (currentUser && currentUser.name) || "Citizen",
+                            phone: appObj.phone || (currentUser && currentUser.phone) || "",
+                            aadhar: appObj.aadhar || (currentUser && currentUser.aadhar) || "",
+                            district: appObj.district || (currentUser && currentUser.district) || "Rajkot",
+                            calamityType: appObj.calamityType || "General",
+                            calamityDate: appObj.calamityDate || new Date().toISOString().split('T')[0],
+                            calamityLocation: appObj.calamityLocation || "",
+                            latitude: appObj.latitude || 22.2587,
+                            longitude: appObj.longitude || 71.1924,
+                            lossDescription: appObj.description || "",
+                            bankName: appObj.bankName || "",
+                            bankBranch: appObj.bankBranch || "",
+                            bankAcc: appObj.bankAccountNumber || "",
+                            bankIfsc: appObj.bankIFSC || "",
+                            landRegistryNumber: appObj.landRegistryNumber || "",
+                            reliefSanctioned: appObj.reliefSanctioned || 50000
+                        };
+                        const apiBaseUrl = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+                            ? `${window.location.origin}/api`
+                            : 'http://localhost:5000/api';
+                        await fetch(`${apiBaseUrl}/applications`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(syncPayload)
+                        });
+                        console.log("Real-time application successfully posted to backend.");
+                    } catch (beErr) {
+                        console.warn("Backend server sync offline:", beErr);
+                    }
+
+                    // Real-Time Notification & Live Dashboard Refresh
+                    if (typeof window.loadPublicDashboardData === 'function') {
+                        window.loadPublicDashboardData();
+                    }
+                    window.dispatchEvent(new CustomEvent('applicationSubmitted', { detail: appObj }));
+
                     // 4. Reset form and UI
                     ['app-calamity', 'app-date', 'app-location', 'app-land-registry', 'app-desc',
                         'app-bank-name', 'app-bank-branch', 'app-acc-num', 'app-ifsc'].forEach(id => document.getElementById(id).value = '');
                     ['doc-aadhar-file', 'doc-bank-file', 'doc-damage-file'].forEach(id => document.getElementById(id).value = '');
 
-                    alert("✅ Application submitted successfully! Documents uploaded and verified.");
+                    alert("✅ Application submitted successfully! Real-time counters and GIS map updated.");
                     switchMode('citizen-dashboard');
                     loadCitizenApplications();
                 } catch (err) {
@@ -2526,10 +3222,14 @@
                     }
                 }
 
-                document.getElementById('stat-total').textContent = apps.length;
-                document.getElementById('stat-pending').textContent = apps.filter(a => a.status === 'pending').length;
-                document.getElementById('stat-approved').textContent = apps.filter(a => a.status === 'approved').length;
-                document.getElementById('stat-rejected').textContent = apps.filter(a => a.status === 'rejected').length;
+                const admTot = document.getElementById('admin-stat-total');
+                if (admTot) admTot.textContent = apps.length;
+                const admPen = document.getElementById('admin-stat-pending');
+                if (admPen) admPen.textContent = apps.filter(a => a.status === 'pending').length;
+                const admApp = document.getElementById('admin-stat-approved');
+                if (admApp) admApp.textContent = apps.filter(a => a.status === 'approved').length;
+                const admRej = document.getElementById('admin-stat-rejected');
+                if (admRej) admRej.textContent = apps.filter(a => a.status === 'rejected').length;
 
                 // DISTRICT WISE STATS AGGREGATION
                 const districtCounts = {};
@@ -2678,34 +3378,48 @@
             setTimeout(() => {
                 if (!adminMap) {
                     adminMap = L.map('map-container').setView([22.2587, 71.1924], 7); // Center roughly on Gujarat
-
-                    var standardMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 18,
-                        attribution: '© OpenStreetMap contributors'
-                    });
+                    window.adminMap = adminMap;
 
                     var googleStreets = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
                         maxZoom: 20,
                         subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                        attribution: '© Google Maps'
+                        attribution: '&copy; Google Maps'
                     });
 
-                    var googleHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+                    var osmStandard = L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+                    });
+
+                    var googleHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
                         maxZoom: 20,
                         subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                        attribution: '© Google Maps'
+                        attribution: '&copy; Google Maps'
+                    });
+
+                    var osmHot = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        subdomains: ['a', 'b', 'c'],
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, Humanitarian'
+                    });
+
+                    var esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                        maxZoom: 19,
+                        attribution: 'Tiles &copy; Esri'
                     });
 
                     var nasaHyperspectral = L.tileLayer(`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${getNASAFormattedDate()}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`, {
                         maxNativeZoom: 9, maxZoom: 18, attribution: 'NASA Earthdata GIBS'
                     });
 
-                    googleStreets.addTo(adminMap); // Default Map Layer Set To Google Maps
+                    googleStreets.addTo(adminMap); // Default Map Layer Set To Google Maps (Roadmap)
 
                     var baseMaps = {
                         "Google Maps (Roadmap)": googleStreets,
-                        "Google Maps (Hybrid)": googleHybrid,
-                        "OpenStreetMap": standardMap,
+                        "OpenStreetMap (Standard)": osmStandard,
+                        "Google Maps (Satellite Hybrid)": googleHybrid,
+                        "OpenStreetMap (Humanitarian)": osmHot,
+                        "Satellite Imagery (Esri)": esriSatellite,
                         "🛰️ NASA Hyperspectral (Disaster View)": nasaHyperspectral
                     };
 
@@ -2975,6 +3689,8 @@
             app.documents = app.documents || [];
 
             const detailsEl = document.getElementById('modal-app-details');
+            const norms = { 'Flood': 50000, 'Cyclone': 95000, 'Earthquake': 120000, 'Fire': 80000, 'Other': 50000 };
+            const defaultAmount = app.reliefSanctioned || norms[app.calamityType] || 50000;
 
             const docHTML = app.documents.map(d => {
                 if (typeof d === 'string') return `<span class="doc-item">✅ ${d}</span>`;
@@ -3000,6 +3716,7 @@
                     <p style="font-size:0.9rem;"><b>Type:</b> ${app.calamityType}</p>
                     <p style="font-size:0.9rem;"><b>Date:</b> ${app.calamityDate}</p>
                     <p style="font-size:0.9rem;"><b>Location:</b> ${app.calamityLocation}, ${app.district}</p>
+                    <p style="font-size:0.9rem;"><b>Relief Norm Entitlement:</b> <span style="font-weight: 700; color: #16a34a;">₹${Number(defaultAmount).toLocaleString('en-IN')}</span></p>
                     <p style="font-size:0.9rem;"><b>Land Registry Number:</b> <span style="font-weight: 600; color: var(--primary);">${app.landRegistryNumber || 'N/A'}</span></p>
                     ${app.latitude && app.longitude ? `
                         <div style="margin-top:0.8rem; background:#e0f2fe; padding:0.8rem; border-radius:8px; border:1px solid #bae6fd;">
@@ -3073,6 +3790,8 @@
                 actionsArea.style.display = 'block';
                 document.getElementById('review-comments').value = '';
                 document.getElementById('review-photos-verified').checked = false;
+                const sanctionInput = document.getElementById('review-sanction-amount');
+                if (sanctionInput) sanctionInput.value = defaultAmount;
             } else {
                 actionsArea.style.display = 'none'; // hide actions if already processed
             }
@@ -3147,12 +3866,45 @@
                 return;
             }
 
-            // 1. Always update local storage first as the immediate state holder
+            // Find current application to determine accurate sanction amount
+            const localApps = DB.getApplications();
+            const currentApp = localApps.find(a => a.id === viewingAppId) || (window._adminAppsCache || []).find(a => a.id === viewingAppId) || {};
+            const norms = { 'Flood': 50000, 'Cyclone': 95000, 'Earthquake': 120000, 'Fire': 80000, 'Other': 50000 };
+            const calamityType = currentApp.calamityType || currentApp.type || 'Other';
+            const sanctionInput = document.getElementById('review-sanction-amount');
+            const sanctionAmount = (sanctionInput && Number(sanctionInput.value) > 0)
+                ? Number(sanctionInput.value)
+                : (Number(currentApp.reliefSanctioned) || norms[calamityType] || 50000);
+
+            const finalSanctioned = (newStatus === 'approved' || newStatus === 'disbursed') ? sanctionAmount : 0;
+
+            // 1. Update local storage first
             DB.updateApplication(viewingAppId, {
                 status: newStatus,
                 adminComments: comments,
+                reliefSanctioned: finalSanctioned,
                 reviewedAt: new Date().toISOString()
             });
+
+            // 1b. Update backend server REST API
+            try {
+                const apiBaseUrl = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+                    ? `${window.location.origin}/api`
+                    : 'http://localhost:5000/api';
+                await fetch(`${apiBaseUrl}/applications/${encodeURIComponent(viewingAppId)}/review`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        officer: (currentUser && (currentUser.name || currentUser.username)) || 'Mamlatdar / Revenue Officer',
+                        comments: comments,
+                        reliefSanctioned: finalSanctioned
+                    })
+                });
+                console.log('Backend server review saved successfully');
+            } catch (beErr) {
+                console.warn('Backend server review sync offline:', beErr);
+            }
 
             // 2. Attempt to update Firebase Firestore (best effort sync)
             try {
@@ -3161,6 +3913,7 @@
                     await window.updateDoc(appDocRef, {
                         status: newStatus,
                         adminComments: comments,
+                        reliefSanctioned: finalSanctioned,
                         reviewedAt: new Date().toISOString()
                     });
                     console.log('Firebase Firestore review sync successful');
@@ -3169,16 +3922,29 @@
                 console.warn('Firebase Firestore review sync failed (operating in offline/fallback mode):', err);
             }
 
-            // 3. Complete the transition locally regardless of Firestore sync errors
-            alert(`✅ Application successfully updated to ${newStatus}!`);
+            // 3. Complete the transition and update real-time counters and GIS map immediately
+            if (typeof window.trackEvent === 'function') {
+                window.trackEvent('application_reviewed', {
+                    status: newStatus,
+                    app_id: viewingAppId
+                });
+            }
+            alert(`✅ Application successfully updated to ${newStatus.toUpperCase()}! Relieved amount updated to ₹${finalSanctioned.toLocaleString('en-IN')}.`);
             closeModal('review-modal');
             loadAdminDashboard();
+            if (typeof window.loadPublicDashboardData === 'function') {
+                window.loadPublicDashboardData();
+            }
+            window.dispatchEvent(new CustomEvent('applicationSubmitted'));
         }
 
-        function systemReset() {
-            if (confirm("Are you sure? This will delete all users and applications from the local database.")) {
+        async function systemReset() {
+            if (confirm("Are you sure? This will delete all users and applications from the system and reset counters to 0.")) {
                 localStorage.clear();
-                alert("System Reset Complete.");
+                try {
+                    await fetch('http://localhost:5000/api/admin/reset', { method: 'POST' });
+                } catch(e) {}
+                alert("System Reset Complete. All counts and applications reset to 0.");
                 location.reload();
             }
         }
@@ -3195,54 +3961,351 @@
             }
         }, 1000);
 
-    </script>
-    <!-- FOOTER -->
-    <footer style="background: #1A365D; color: white; padding: 3rem 2rem 1rem; margin-top: 4rem;">
-        <div class="container"
-            style="max-width: 1200px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem;">
-            <div>
-                <h4 style="margin-bottom: 1.5rem; color: var(--primary);">About the Portal</h4>
-                <p style="font-size: 0.9rem; line-height: 1.6; opacity: 0.8;">The Gujarat Ex-Gratia Disaster Relief
-                    Portal is an initiative of the Government of Gujarat to provide swift financial assistance to
-                    citizens affected by natural calamities. Powered by satellite analysis and direct benefit transfer.
-                </p>
-            </div>
-            <div>
-                <h4 style="margin-bottom: 1.5rem; color: var(--primary);">Quick Links</h4>
-                <ul style="list-style: none; font-size: 0.9rem; opacity: 0.8;">
-                    <li style="margin-bottom: 0.8rem;"><a href="#" style="color: white; text-decoration: none;">Gujarat
-                            State Portal</a></li>
-                    <li style="margin-bottom: 0.8rem;"><a href="#" style="color: white; text-decoration: none;">NDMA
-                            Guidelines</a></li>
-                    <li style="margin-bottom: 0.8rem;"><a href="#" style="color: white; text-decoration: none;">Privacy
-                            Policy</a></li>
-                    <li style="margin-bottom: 0.8rem;"><a href="#" style="color: white; text-decoration: none;">Contact
-                            Helpline</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 style="margin-bottom: 1.5rem; color: var(--primary);">Contact Support</h4>
-                <p style="font-size: 0.9rem; opacity: 0.8;">Helpline: 1070 / 1077 (Toll Free)</p>
-                <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem;">Email: relief-gujarat@nic.in</p>
-                <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-                    <img src="https://upload.wikimedia.org/wikipedia/en/9/95/Digital_India_logo.svg" alt="Digital India"
-                        style="height: 32px; filter: brightness(0) invert(1);">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b2/Aadhaar_Logo.svg" alt="Aadhar"
-                        style="height: 32px; filter: brightness(0) invert(1);">
+
+  </script>
+
+  <!-- F1 Leaflet District Map Logic -->
+  <script>
+    // Set current year
+    const yearEl = document.getElementById('year');
+    if (yearEl) {
+      yearEl.textContent = new Date().getFullYear();
+    }
+
+    // Initialize Dashboard Elements
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize Lucide Icons (inline renderer — no CDN needed)
+      lucide.createIcons();
+
+      // Initialize Leaflet Map with safety check
+      if (typeof L !== 'undefined') {
+        const gujaratCenter = [22.2587, 71.1924];
+        const map = L.map('map', {
+          center: gujaratCenter,
+          zoom: 7,
+          zoomControl: true,
+          scrollWheelZoom: true
+        });
+        window._homeMap = map;
+
+        // Force recalculation of viewport bounds after DOM settles
+        setTimeout(() => { map.invalidateSize(); }, 250);
+        window.addEventListener('resize', () => { map.invalidateSize(); });
+
+        // Robust, Unwatermarked Basemaps: Google Maps & OpenStreetMap (No API Key Required)
+        const googleRoads = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+          maxZoom: 20,
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+          attribution: '&copy; Google Maps'
+        });
+
+        const osmStandard = L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+        });
+
+        const googleHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+          maxZoom: 20,
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+          attribution: '&copy; Google Maps'
+        });
+
+        const osmHot = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          subdomains: ['a', 'b', 'c'],
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, Humanitarian'
+        });
+
+        const esriStreet = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19,
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, METI'
+        });
+
+        // Set Google Maps (Roadmap) as primary default layer
+        googleRoads.addTo(map);
+
+        // Add interactive layer selector (Google Maps + OpenStreetMap)
+        const baseMaps = {
+          "Google Maps (Roadmap)": googleRoads,
+          "OpenStreetMap (Standard)": osmStandard,
+          "Google Maps (Satellite Hybrid)": googleHybrid,
+          "OpenStreetMap (Humanitarian)": osmHot,
+          "Esri World Street": esriStreet
+        };
+        L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+        // Keep track of active markers
+        const markersGroup = L.layerGroup().addTo(map);
+
+        const DISTRICT_COORDS = {
+          'Ahmedabad': [23.0225, 72.5714],
+          'Vadodara': [22.3072, 73.1812],
+          'Anand': [22.5300, 72.9500],
+          'Kheda': [22.7500, 72.7500],
+          'Panchmahal': [22.7500, 73.6667],
+          'Dahod': [22.8833, 74.2500],
+          'Mahisagar': [23.1300, 73.5500],
+          'Chhota Udaipur': [22.3000, 74.0167],
+          'Surat': [21.1702, 72.8311],
+          'Bharuch': [21.6833, 72.9667],
+          'Navsari': [20.9500, 72.9333],
+          'Valsad': [20.6000, 72.9333],
+          'Narmada': [21.8667, 73.5000],
+          'Tapi': [21.1167, 73.4000],
+          'Dang': [20.7500, 73.6833],
+          'Gandhinagar': [23.2167, 72.6833],
+          'Mehsana': [23.6000, 72.4000],
+          'Banaskantha': [24.1700, 72.4300],
+          'Patan': [23.8500, 72.1333],
+          'Sabarkantha': [23.6000, 72.9833],
+          'Aravalli': [23.5000, 73.3333],
+          'Vav-Tharad': [24.3588, 71.9118],
+          'Rajkot': [22.3039, 70.8022],
+          'Kutch': [23.2500, 69.6667],
+          'Bhavnagar': [21.7667, 72.1500],
+          'Jamnagar': [22.2700, 70.0700],
+          'Junagadh': [21.5167, 70.4667],
+          'Surendranagar': [22.7000, 71.6333],
+          'Amreli': [21.6000, 71.2167],
+          'Porbandar': [21.6333, 69.6000],
+          'Morbi': [22.8167, 70.8333],
+          'Botad': [22.1667, 71.6667],
+          'Devbhoomi Dwarka': [22.2333, 69.6667],
+          'Gir Somnath': [20.9000, 70.3667]
+        };
+
+        window.updateMapMarkers = function (districtCounts) {
+          markersGroup.clearLayers();
+          
+          Object.entries(DISTRICT_COORDS).forEach(([district, coords]) => {
+            let key = district;
+            // Support database model schema variations
+            if (!districtCounts[key] && key === 'Kutch') key = 'Kachchh';
+            if (!districtCounts[key] && key === 'Kachchh') key = 'Kutch';
+            if (!districtCounts[key] && key === 'Aravalli') key = 'Aravali';
+            if (!districtCounts[key] && key === 'Aravali') key = 'Aravalli';
+
+            const countData = districtCounts[key];
+            if (!countData || !countData.total || countData.total <= 0) {
+              return;
+            }
+            const count = countData.total || 0;
+            const disbursed = countData.disbursed || 0;
+            const rawAmt = countData.rawAmount != null ? countData.rawAmount : 0;
+            let displayAmt = countData.amount;
+            if (!displayAmt || displayAmt === '0') {
+              if (rawAmt > 0) {
+                if (rawAmt >= 10000000) displayAmt = (rawAmt / 10000000).toFixed(2) + ' Cr';
+                else if (rawAmt >= 100000) displayAmt = (rawAmt / 100000).toFixed(2) + ' Lakh';
+                else displayAmt = rawAmt.toLocaleString('en-IN');
+              } else {
+                displayAmt = '0';
+              }
+            }
+            if (!displayAmt.startsWith('₹')) displayAmt = '₹' + displayAmt;
+
+            const popupContent = `
+              <div style="font-family: 'Inter', sans-serif; font-size: 0.825rem; color: #1e293b; line-height: 1.4; min-width: 195px;">
+                <strong style="color: #002147; font-size: 0.95rem; display: block; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 6px;">📍 ${district} District</strong>
+                <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 4px;">
+                  <span style="color: #64748b; font-weight: 500;">Applications:</span>
+                  <strong style="color: #002147; font-size: 1rem;">${count.toLocaleString('en-IN')}</strong>
                 </div>
-            </div>
-        </div>
-        <div
-            style="text-align: center; padding-top: 3rem; margin-top: 3rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; opacity: 0.6;">
-            &copy; 2026 Government of Gujarat. All Rights Reserved. Designed for Swift Relief Distribution.
-        </div>
-    </footer>
+                <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 4px;">
+                  <span style="color: #64748b; font-weight: 500;">Disbursed:</span>
+                  <strong style="color: #10b981;">${disbursed.toLocaleString('en-IN')}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 4px;">
+                  <span style="color: #64748b; font-weight: 500;">Relief Disbursed:</span>
+                  <strong style="color: #d97706;">${displayAmt}</strong>
+                </div>
+                <div style="font-size: 0.72rem; color: #0284c7; margin-top: 6px; padding-top: 4px; border-top: 1px dashed #e2e8f0;">
+                  🟢 Real-Time GIS Spatial Node
+                </div>
+              </div>
+            `;
+            
+            L.marker(coords)
+              .addTo(markersGroup)
+              .bindPopup(popupContent);
+          });
+        };
 
-    <script>
-        /* registerUser() is defined earlier in the page (line ~1746).
-           This second definition was accidentally duplicating and overwriting
-           the correct one above — it has been removed. */
+        // Real-time live data loader
+        window.loadPublicDashboardData = async function () {
+          try {
+            const [statsRes, mapStatsRes] = await Promise.allSettled([
+              fetch('http://localhost:5000/api/applications/stats'),
+              fetch('http://localhost:5000/api/applications/map-stats')
+            ]);
 
+            let statsData = null;
+            if (statsRes.status === 'fulfilled' && statsRes.value && statsRes.value.ok) {
+              statsData = await statsRes.value.json();
+            }
+
+            let mapStatsData = null;
+            if (mapStatsRes.status === 'fulfilled' && mapStatsRes.value && mapStatsRes.value.ok) {
+              mapStatsData = await mapStatsRes.value.json();
+            }
+
+            if (statsData) {
+              const totalEl = document.getElementById('stat-total');
+              const disbursedEl = document.getElementById('stat-disbursed');
+              const rejectedEl = document.getElementById('stat-rejected');
+              const amountEl = document.getElementById('stat-amount');
+
+              const localApps = (typeof DB !== 'undefined' && DB.getApplications) ? DB.getApplications() : [];
+              const serverTotal = Number(statsData.total || 0);
+              const liveTotal = Math.max(serverTotal, localApps.length);
+
+              const localDisbursed = localApps.filter(a => a.status === 'approved' || a.status === 'disbursed').length;
+              const liveDisbursed = Math.max(Number(statsData.disbursed || 0), localDisbursed);
+
+              const localRejected = localApps.filter(a => a.status === 'rejected').length;
+              const liveRejected = Math.max(Number(statsData.rejected || 0), localRejected);
+
+              let displayAmount = '₹0';
+              if (statsData.amount && statsData.amount !== '0' && statsData.amount !== '0.0 Cr') {
+                displayAmount = statsData.amount.startsWith('₹') ? statsData.amount : '₹' + statsData.amount;
+              } else if (localApps.length > 0) {
+                let localAmt = 0;
+                localApps.filter(a => a.status === 'approved' || a.status === 'disbursed').forEach(a => {
+                  localAmt += Number(a.reliefSanctioned || 50000);
+                });
+                if (localAmt >= 10000000) displayAmount = '₹' + (localAmt / 10000000).toFixed(2) + ' Cr';
+                else if (localAmt >= 100000) displayAmount = '₹' + (localAmt / 100000).toFixed(2) + ' Lakh';
+                else if (localAmt > 0) displayAmount = '₹' + localAmt.toLocaleString('en-IN');
+              }
+
+              if (totalEl) totalEl.innerText = liveTotal.toLocaleString('en-IN');
+              if (disbursedEl) disbursedEl.innerText = liveDisbursed.toLocaleString('en-IN');
+              if (rejectedEl) rejectedEl.innerText = liveRejected.toLocaleString('en-IN');
+              if (amountEl) amountEl.innerText = displayAmount;
+            } else {
+              applyFallbackPublicStats();
+            }
+
+            const districtsList = (mapStatsData && Array.isArray(mapStatsData.districts)) 
+              ? mapStatsData.districts 
+              : (Array.isArray(mapStatsData) ? mapStatsData : null);
+
+            if (districtsList && districtsList.length > 0) {
+              const distCounts = {};
+              districtsList.forEach(item => {
+                distCounts[item.district] = {
+                  total: item.total || 0,
+                  disbursed: item.disbursed || 0,
+                  amount: item.amount || "0"
+                };
+              });
+
+              // Merge local citizen applications if local count exceeds server count
+              const localApps = (typeof DB !== 'undefined' && DB.getApplications) ? DB.getApplications() : [];
+              if (localApps.length > (statsData ? statsData.total : 0)) {
+                localApps.forEach(a => {
+                  const d = a.district || 'Rajkot';
+                  if (!distCounts[d]) {
+                    distCounts[d] = { total: 0, disbursed: 0, amount: '0' };
+                  }
+                  distCounts[d].total += 1;
+                  if (a.status === 'approved' || a.status === 'disbursed') {
+                    distCounts[d].disbursed += 1;
+                    const sanctioned = Number(a.reliefSanctioned || 50000);
+                    distCounts[d].rawAmount = (distCounts[d].rawAmount || 0) + sanctioned;
+                  }
+                });
+              }
+
+              window.updateMapMarkers(distCounts);
+            } else {
+              applyFallbackMapMarkers();
+            }
+          } catch (e) {
+            console.warn('Real-time sync falling back to local DB:', e);
+            applyFallbackPublicStats();
+            applyFallbackMapMarkers();
+          }
+        };
+
+        function applyFallbackPublicStats() {
+          const apps = (typeof DB !== 'undefined' && DB.getApplications) ? DB.getApplications() : [];
+          const totalEl = document.getElementById('stat-total');
+          const disbursedEl = document.getElementById('stat-disbursed');
+          const rejectedEl = document.getElementById('stat-rejected');
+          const amountEl = document.getElementById('stat-amount');
+
+          const liveTotal = apps.length;
+          const liveDisbursed = apps.filter(a => a.status === 'approved' || a.status === 'disbursed').length;
+          const liveRejected = apps.filter(a => a.status === 'rejected').length;
+
+          let rawAmount = 0;
+          apps.filter(a => a.status === 'approved' || a.status === 'disbursed').forEach(a => {
+            rawAmount += Number(a.reliefSanctioned || 50000);
+          });
+
+          let amountStr = '₹0';
+          if (rawAmount >= 10000000) amountStr = '₹' + (rawAmount / 10000000).toFixed(2) + ' Cr';
+          else if (rawAmount >= 100000) amountStr = '₹' + (rawAmount / 100000).toFixed(2) + ' Lakh';
+          else if (rawAmount > 0) amountStr = '₹' + rawAmount.toLocaleString('en-IN');
+
+          if (totalEl) totalEl.innerText = liveTotal.toLocaleString('en-IN');
+          if (disbursedEl) disbursedEl.innerText = liveDisbursed.toLocaleString('en-IN');
+          if (rejectedEl) rejectedEl.innerText = liveRejected.toLocaleString('en-IN');
+          if (amountEl) amountEl.innerText = amountStr;
+        }
+
+        function applyFallbackMapMarkers() {
+          const apps = (typeof DB !== 'undefined' && DB.getApplications) ? DB.getApplications() : [];
+          const counts = {};
+
+          // Count strictly from actual applications
+          apps.forEach(a => {
+            const d = a.district || 'Rajkot';
+            if (!counts[d]) {
+              counts[d] = { total: 0, disbursed: 0, amount: '0', rawAmount: 0 };
+            }
+            counts[d].total += 1;
+            if (a.status === 'approved' || a.status === 'disbursed') {
+              counts[d].disbursed += 1;
+              const sanctioned = Number(a.reliefSanctioned || 50000);
+              const currAmt = (counts[d].rawAmount || 0) + sanctioned;
+              counts[d].rawAmount = currAmt;
+              if (currAmt >= 10000000) counts[d].amount = (currAmt / 10000000).toFixed(2) + ' Cr';
+              else if (currAmt >= 100000) counts[d].amount = (currAmt / 100000).toFixed(2) + ' Lakh';
+              else counts[d].amount = currAmt.toLocaleString('en-IN');
+            }
+          });
+
+          window.updateMapMarkers(counts);
+        }
+
+        // Initialize real-time data immediately
+        window.loadPublicDashboardData();
+
+        // Continuous real-time polling every 3 seconds
+        setInterval(() => {
+          window.loadPublicDashboardData();
+        }, 3000);
+
+        // Immediate real-time sync when citizen submits application
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'applications') {
+            window.loadPublicDashboardData();
+          }
+        });
+        window.addEventListener('applicationSubmitted', () => {
+          window.loadPublicDashboardData();
+        });
+      } else {
+        console.error('Leaflet map library failed to load.');
+        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center;">Map could not be loaded. Please check your internet connection.</div>';
+      }
+    });
+  </script>
+
+  <!-- Weather Alerts Integration -->
+  <script>
         /* ============================================================
            LIVE WEATHER — Open-Meteo API (free, no key required)
            Nowcasting + 5-day forecast for Gujarat / user location
@@ -3274,7 +4337,7 @@
         };
 
         // Gujarat district → approx coordinates
-        const DISTRICT_COORDS = {
+        var WEATHER_DISTRICT_COORDS = (typeof DISTRICT_COORDS !== "undefined") ? DISTRICT_COORDS : {
             'Ahmedabad': [23.0225, 72.5714],
             'Amreli': [21.6025, 71.2100],
             'Anand': [22.5645, 72.9289],
@@ -3394,8 +4457,8 @@
         function initWeather() {
             // Try user's district first (from logged-in citizen profile)
             const district = currentUser && currentUser.district;
-            if (district && DISTRICT_COORDS[district]) {
-                const [lat, lon] = DISTRICT_COORDS[district];
+            if (district && (typeof DISTRICT_COORDS !== "undefined" ? DISTRICT_COORDS : WEATHER_DISTRICT_COORDS)[district]) {
+                const [lat, lon] = (typeof DISTRICT_COORDS !== "undefined" ? DISTRICT_COORDS : WEATHER_DISTRICT_COORDS)[district];
                 loadWeather(lat, lon, district + ', Gujarat');
                 return;
             }
@@ -3410,6 +4473,6 @@
             }
         }
     </script>
-</body>
 
+</body>
 </html>
